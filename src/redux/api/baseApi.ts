@@ -32,9 +32,9 @@ export const baseApi = createApi({
     }),
     updateBook: builder.mutation<
       ApiResponse<IBook>,
-      { id: string; data: Partial<IBook> }
+      { id: string; updatedBookData: Partial<IBook> }
     >({
-      query: ({ id, ...updatedBookData }) => ({
+      query: ({ id, updatedBookData }) => ({
         url: `/edit-book/${id}`,
         method: "PUT",
         body: updatedBookData,

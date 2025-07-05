@@ -58,7 +58,10 @@ const BookUpdateModal = ({ book }: IProps) => {
   }, [open, book, form]);
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    const res = await updateBook({ id: book._id, data }).unwrap();
+    const res = await updateBook({
+      id: book._id,
+      updatedBookData: data,
+    }).unwrap();
     if (res.success) {
       toast.success(res.message, {
         duration: 5000,
