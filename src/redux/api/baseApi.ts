@@ -5,6 +5,7 @@ import {
   type IBookSummary,
   type IBorrow,
   type ICreateBorrowArg,
+  type IError,
 } from "@/type";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -22,7 +23,7 @@ export const baseApi = createApi({
     getBook: builder.query<ApiResponse<IBook>, string>({
       query: (id) => `/books/${id}`,
     }),
-    createBook: builder.mutation<ApiResponse<IBook>, IBookCreate>({
+    createBook: builder.mutation<ApiResponse<IBook>, IBookCreate, IError>({
       query: (bookData) => ({
         url: "/create-book",
         method: "POST",

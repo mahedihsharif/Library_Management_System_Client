@@ -27,7 +27,7 @@ import {
 
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateBookMutation } from "@/redux/api/baseApi";
-import type { IBookCreate } from "@/type";
+import { isError, type IBookCreate } from "@/type";
 import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -37,9 +37,11 @@ const AddBookModal = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const form = useForm();
-  const [createBook] = useCreateBookMutation(undefined);
-
+  const [createBook, { error }] = useCreateBookMutation(undefined);
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    if (isError(error)) {
+      return toast.error(error?.data?.message, { duration: 5000 });
+    }
     const res = await createBook(data as IBookCreate).unwrap();
     if (res.success) {
       toast.success(res.message, {
@@ -158,7 +160,7 @@ const AddBookModal = () => {
                     <Input
                       {...field}
                       value={field.value || ""}
-                      placeholder="Ex: 894792478437047"
+                      placeholder="Ex: 89479247843"
                     />
                   </FormControl>
                 </FormItem>

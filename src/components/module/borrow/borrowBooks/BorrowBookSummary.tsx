@@ -11,17 +11,10 @@ import { useGetBorrowBooksQuery } from "@/redux/api/baseApi";
 import BorrowBookTable from "./BorrowBookTable";
 
 const BorrowBookSummary = () => {
-  const { data: borrowBooks, isLoading, error } = useGetBorrowBooksQuery();
+  const { data: borrowBooks, isLoading } = useGetBorrowBooksQuery();
 
   if (isLoading) {
     return <p>Loading...</p>;
-  }
-  if (error) {
-    return (
-      <div style={{ color: "red" }}>
-        <p>Something went wrong</p>
-      </div>
-    );
   }
 
   return (
