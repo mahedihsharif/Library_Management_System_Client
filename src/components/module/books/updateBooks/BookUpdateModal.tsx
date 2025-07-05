@@ -31,6 +31,8 @@ import type { IBook } from "@/type";
 import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 interface IProps {
   book: IBook;
@@ -39,6 +41,7 @@ interface IProps {
 const BookUpdateModal = ({ book }: IProps) => {
   const [open, setOpen] = useState(false);
   const form = useForm();
+  const navigate = useNavigate();
   const [updateBook] = useUpdateBookMutation();
 
   useEffect(() => {
@@ -55,10 +58,17 @@ const BookUpdateModal = ({ book }: IProps) => {
   }, [open, book, form]);
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    console.log(data);
-    await updateBook({ id: book._id, data });
-    setOpen(false);
-    form.reset();
+    const res = await updateBook({ id: book._id, data }).unwrap();
+    if (res.success) {
+      toast.success(res.message, {
+        duration: 5000,
+      });
+      setOpen(false);
+      form.reset();
+      navigate("/", { replace: true });
+    } else {
+      toast.error(res.message, { duration: 5000 });
+    }
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -163,7 +173,7 @@ const BookUpdateModal = ({ book }: IProps) => {
                 <FormItem>
                   <FormLabel>Copies</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value || ""} />
+                    <Input {...field} value={field.value || 0} />
                   </FormControl>
                 </FormItem>
               )}

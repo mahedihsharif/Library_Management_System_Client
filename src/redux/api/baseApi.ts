@@ -1,4 +1,11 @@
-import { type ApiResponse, type IBook, type IBookCreate } from "@/type";
+import {
+  type ApiResponse,
+  type IBook,
+  type IBookCreate,
+  type IBookSummary,
+  type IBorrow,
+  type ICreateBorrowArg,
+} from "@/type";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const baseApi = createApi({
@@ -12,17 +19,23 @@ export const baseApi = createApi({
       query: () => "/books",
       providesTags: ["book"],
     }),
-    createBook: builder.mutation<IBook, IBookCreate>({
+    getBook: builder.query<ApiResponse<IBook>, string>({
+      query: (id) => `/books/${id}`,
+    }),
+    createBook: builder.mutation<ApiResponse<IBook>, IBookCreate>({
       query: (bookData) => ({
-        url: "/books",
+        url: "/create-book",
         method: "POST",
         body: bookData,
       }),
       invalidatesTags: ["book"],
     }),
-    updateBook: builder.mutation<IBook, { id: string; data: Partial<IBook> }>({
+    updateBook: builder.mutation<
+      ApiResponse<IBook>,
+      { id: string; data: Partial<IBook> }
+    >({
       query: ({ id, ...updatedBookData }) => ({
-        url: `/books/${id}`,
+        url: `/edit-book/${id}`,
         method: "PUT",
         body: updatedBookData,
       }),
@@ -35,12 +48,29 @@ export const baseApi = createApi({
       }),
       invalidatesTags: ["book"],
     }),
+    //borrow api request phase
+    createBorrowBook: builder.mutation<ApiResponse<IBorrow>, ICreateBorrowArg>({
+      query: ({ bookId, borrowBookData }) => ({
+        url: `/borrow/${bookId}`,
+        method: "POST",
+        body: borrowBookData,
+      }),
+      invalidatesTags: ["book"],
+    }),
+
+    getBorrowBooks: builder.query<ApiResponse<IBookSummary[]>, void>({
+      query: () => "/borrow-summary",
+      providesTags: ["book"],
+    }),
   }),
 });
 
 export const {
   useGetBooksQuery,
+  useGetBookQuery,
   useCreateBookMutation,
   useUpdateBookMutation,
   useDeleteBookMutation,
+  useCreateBorrowBookMutation,
+  useGetBorrowBooksQuery,
 } = baseApi;

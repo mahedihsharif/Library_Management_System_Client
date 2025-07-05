@@ -1,5 +1,11 @@
+import BorrowBookSummary from "@/components/module/borrow/borrowBooks/BorrowBookSummary";
+
 const BorrowSummery = () => {
-  return <div>This is borrow summery page</div>;
+  return (
+    <div>
+      <BorrowBookSummary />
+    </div>
+  );
 };
 
 export default BorrowSummery;

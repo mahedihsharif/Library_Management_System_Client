@@ -1,17 +1,15 @@
-import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { useDeleteBookMutation } from "@/redux/api/baseApi";
 import type { IBook } from "@/type";
-import { Trash2 } from "lucide-react";
-import BookModal from "../allBooks/ViewBookModal";
+import BorrowBookModal from "../../borrow/borrowBooks/BorrowBookModal";
+import BookDeleteModal from "../bookDelete/BookDeleteModal";
 import BookUpdateModal from "../updateBooks/BookUpdateModal";
+import ViewBookModal from "./ViewBookModal";
 
 interface IProps {
   book: IBook;
 }
 
 const BookTable = ({ book }: IProps) => {
-  const [deleteBook] = useDeleteBookMutation();
   return (
     <TableRow>
       <TableCell>{book.title}</TableCell>
@@ -30,30 +28,12 @@ const BookTable = ({ book }: IProps) => {
           {book.available ? "Available" : "Unavailable"}
         </span>
       </TableCell>
-      <TableCell className="flex justify-center items-center gap-2">
-        <div>
-          <BookModal bookId={book._id} />
-        </div>
-        <div>
+      <TableCell>
+        <div className="flex justify-center items-center gap-2">
+          <ViewBookModal bookId={book._id} />
           <BookUpdateModal book={book} />
-        </div>
-        <div>
-          <Button
-            variant="default"
-            size="icon"
-            className="text-red-500 hover:text-red-700 cursor-pointer"
-            onClick={() => deleteBook(book._id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-        <div>
-          <Button
-            variant="default"
-            className="text-amber-700 hover:text-red-700 cursor-pointer"
-          >
-            Borrow
-          </Button>
+          <BookDeleteModal bookId={book._id} />
+          <BorrowBookModal book={book} />
         </div>
       </TableCell>
     </TableRow>

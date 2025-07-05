@@ -30,16 +30,27 @@ import { useCreateBookMutation } from "@/redux/api/baseApi";
 import type { IBookCreate } from "@/type";
 import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const AddBookModal = () => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const form = useForm();
   const [createBook] = useCreateBookMutation(undefined);
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    await createBook(data as IBookCreate);
-    setOpen(false);
-    form.reset();
+    const res = await createBook(data as IBookCreate).unwrap();
+    if (res.success) {
+      toast.success(res.message, {
+        duration: 5000,
+      });
+      setOpen(false);
+      form.reset();
+      navigate("/", { replace: true });
+    } else {
+      toast.error(res.message, { duration: 5000 });
+    }
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>

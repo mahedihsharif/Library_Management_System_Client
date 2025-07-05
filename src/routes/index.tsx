@@ -16,8 +16,9 @@ const router = createBrowserRouter([
         path: "/books",
         element: <Books />,
       },
+
       {
-        path: "/borrow-summery",
+        path: "/borrow-summary",
         element: <BorrowSummery />,
       },
     ],

@@ -27,3 +27,21 @@ export interface ApiResponse<T> {
   message: string;
   data: T;
 }
+
+export interface IBorrow {
+  quantity: number;
+  dueDate: string;
+}
+
+export interface ICreateBorrowArg {
+  bookId: string;
+  borrowBookData: IBorrow;
+}
+
+export interface IBookSummary {
+  totalQuantity: number;
+  book: {
+    title: string;
+    isbn: string;
+  };
+}

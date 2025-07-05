@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { useGetBooksQuery } from "@/redux/api/baseApi";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useGetBookQuery } from "@/redux/api/baseApi";
 import { Eye } from "lucide-react";
 
 interface IProps {
@@ -9,10 +14,9 @@ interface IProps {
 }
 
 const ViewBookModal = ({ bookId }: IProps) => {
-  const { data: books } = useGetBooksQuery(undefined);
-  const singleBook = books?.data.find((book) => book._id === bookId);
-  if (!singleBook) return null;
-  const { title, author, genre, isbn, copies, available } = singleBook;
+  const { data: books } = useGetBookQuery(bookId);
+  if (!books) return null;
+  const { title, author, genre, isbn, copies, available } = books.data;
   return (
     <Dialog>
       <DialogTrigger>
@@ -23,7 +27,7 @@ const ViewBookModal = ({ bookId }: IProps) => {
       <DialogContent>
         <Card className="w-full max-w-md shadow-lg rounded-2xl border border-gray-200">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+            <DialogTitle className="text-xl font-semibold">{title}</DialogTitle>
             <p className="font-medium text-gray-500 text-md">
               author: <span>{author}</span>
             </p>

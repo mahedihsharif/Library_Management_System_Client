@@ -7,12 +7,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetBooksQuery } from "@/redux/api/baseApi";
-import type { IBook } from "@/type";
-import BookTable from "./BookTable";
+import { useGetBorrowBooksQuery } from "@/redux/api/baseApi";
+import BorrowBookTable from "./BorrowBookTable";
 
-const AllBooks = () => {
-  const { data: books, error, isLoading } = useGetBooksQuery(undefined);
+const BorrowBookSummary = () => {
+  const { data: borrowBooks, isLoading, error } = useGetBorrowBooksQuery();
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -28,7 +27,7 @@ const AllBooks = () => {
   return (
     <Card className="w-full">
       <h1 className="text-center text-2xl font-bold font-serif">
-        Our <span className="text-cyan-400">Book Store</span>
+        Borrow <span className="text-amber-600">Summary</span>
       </h1>
 
       <CardContent className="py-4">
@@ -36,19 +35,15 @@ const AllBooks = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Genre</TableHead>
+                <TableHead>Book Title</TableHead>
                 <TableHead>ISBN</TableHead>
-                <TableHead>Copies</TableHead>
-                <TableHead>Availability</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
+                <TableHead>Total Quantity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {!isLoading &&
-                books?.data.map((book: IBook) => (
-                  <BookTable key={book._id} book={book} />
+                borrowBooks?.data.map((borrowBook, index) => (
+                  <BorrowBookTable key={index} borrowBook={borrowBook} />
                 ))}
             </TableBody>
           </Table>
@@ -58,4 +53,4 @@ const AllBooks = () => {
   );
 };
 
-export default AllBooks;
+export default BorrowBookSummary;

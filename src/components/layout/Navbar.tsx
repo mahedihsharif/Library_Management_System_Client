@@ -17,7 +17,7 @@ const Navbar = () => {
         <ul className="flex justify-center gap-5 text-md text-white">
           <Link to="/books">All Books</Link>
           <li>Add Book</li>
-          <Link to="/borrow-summery">Borrow Summery</Link>
+          <Link to="/borrow-summary">Borrow Summery</Link>
         </ul>
         {/* dark-mode button */}
         <div>
