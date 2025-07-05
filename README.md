@@ -1,3 +1,5 @@
+#Live Link: https://library-management-app-one-mu.vercel.app/
+
 # 📚 Library Management System
 
 A **minimal and modern Library Management System** built with **React, Vite, Redux Toolkit Query (RTK Query), TypeScript, Tailwind CSS**, and **Shadcn/UI**. This is a fully functional frontend client that interacts with a RESTful API to perform core library operations such as book CRUD, borrowing books, and viewing a borrow summary—all without authentication or category filtering.
