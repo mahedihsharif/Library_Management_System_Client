@@ -1,5 +1,3 @@
-import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-
 export interface IBook {
   _id: string;
   title: string;
@@ -53,14 +51,4 @@ export interface IError {
     success: boolean;
     message: string;
   };
-}
-
-//error type
-export function isError(error: unknown): error is FetchBaseQueryError & IError {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "data" in error &&
-    typeof (error as FetchBaseQueryError & IError).data?.message === "string"
-  );
 }
