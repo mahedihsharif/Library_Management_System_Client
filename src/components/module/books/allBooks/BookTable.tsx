@@ -28,7 +28,7 @@ const BookTable = ({ book }: IProps) => {
         </span>
       </td>
       <td className="p-3 flex flex-wrap gap-2">
-        <ViewBookModal bookId={book._id} />
+        <ViewBookModal book={book} />
         <BookUpdateModal book={book} />
         <BookDeleteModal bookId={book._id} />
         <BorrowBookModal book={book} />
