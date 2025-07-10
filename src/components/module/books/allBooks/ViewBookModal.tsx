@@ -6,7 +6,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useGetBookQuery } from "@/redux/api/baseApi";
+import {
+  getErrorMessageToReadData,
+  useGetBookQuery,
+} from "@/redux/api/baseApi";
 import { Eye } from "lucide-react";
 
 interface IProps {
@@ -14,9 +17,17 @@ interface IProps {
 }
 
 const ViewBookModal = ({ bookId }: IProps) => {
-  const { data: books } = useGetBookQuery(bookId);
+  const { data: books, isLoading, error } = useGetBookQuery(bookId);
   if (!books) return null;
-  const { title, author, genre, isbn, copies, available } = books.data;
+  const { title, author, genre, isbn, copies } = books.data;
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+  if (error) {
+    const errorMessage = getErrorMessageToReadData(error);
+    return <p>Error: {errorMessage}</p>;
+  }
   return (
     <Dialog>
       <DialogTrigger>
@@ -49,19 +60,26 @@ const ViewBookModal = ({ bookId }: IProps) => {
               Availability:
               <span
                 className={
-                  available ? "text-green-600  text-sm" : "text-red-500 text-sm"
+                  copies > 0
+                    ? "text-green-600  text-sm"
+                    : "text-red-500 text-sm"
                 }
               >
-                {available ? " Available" : " Unavailable"}
+                {copies > 0 ? " Available" : " Unavailable"}
               </span>
             </p>
-            <Button
-              disabled={!available || copies === 0}
-              //   onClick={onBook}
-              className="w-full mt-3"
-            >
-              Book Now
-            </Button>
+            {copies <= 0 ? (
+              <Button
+                disabled={true}
+                className="w-full mt-3 text-red-600 cursor-not-allowed select-none"
+              >
+                Unavailable to borrow
+              </Button>
+            ) : (
+              <Button variant="default" className="w-full mt-3 cursor-pointer">
+                Book Now
+              </Button>
+            )}
           </CardContent>
         </Card>
       </DialogContent>

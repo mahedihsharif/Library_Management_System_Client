@@ -1,60 +1,94 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useGetBooksQuery } from "@/redux/api/baseApi";
+  getErrorMessageToReadData,
+  useGetBooksQuery,
+} from "@/redux/api/baseApi";
 import type { IBook } from "@/type";
+import { useState } from "react";
 import BookTable from "./BookTable";
 
 const AllBooks = () => {
-  const { data: books, error, isLoading } = useGetBooksQuery(undefined);
+  const { data: books, error, isLoading } = useGetBooksQuery();
+  const [currentPage, setCurrentPage] = useState(1);
 
   if (isLoading) {
     return <p>Loading...</p>;
   }
   if (error) {
-    return (
-      <div style={{ color: "red" }}>
-        <p>Something went wrong</p>
-      </div>
-    );
+    const errorMessage = getErrorMessageToReadData(error);
+    return <p>Error: {errorMessage}</p>;
   }
 
-  return (
-    <Card className="w-full">
-      <h1 className="text-center text-2xl font-bold font-serif">
-        Our <span className="text-cyan-400">Book Store</span>
-      </h1>
+  const itemsPerPage = 5;
 
-      <CardContent className="py-4">
-        <ScrollArea className="w-full overflow-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Genre</TableHead>
-                <TableHead>ISBN</TableHead>
-                <TableHead>Copies</TableHead>
-                <TableHead>Availability</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!isLoading &&
-                books?.data.map((book: IBook) => (
-                  <BookTable key={book._id} book={book} />
-                ))}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+  const totalPages = Math.ceil(books?.data?.length ?? 0);
+  const paginatedBooks = books?.data?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  return (
+    <div className="p-4 bg-black text-white rounded-xl w-full">
+      <h2 className="text-center text-2xl font-semibold mb-4">
+        Our <span className="text-cyan-400 font-bold">Book Store</span>
+      </h2>
+
+      <div className="w-full overflow-x-auto">
+        <table className="min-w-[900px] w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-gray-700">
+              <th className="p-3 font-medium">Title</th>
+              <th className="p-3 font-medium">Author</th>
+              <th className="p-3 font-medium">Genre</th>
+              <th className="p-3 font-medium">ISBN</th>
+              <th className="p-3 font-medium">Copies</th>
+              <th className="p-3 font-medium">Availability</th>
+              <th className="p-3 font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {!isLoading &&
+              paginatedBooks?.map((book: IBook) => (
+                <BookTable key={book._id} book={book} />
+              ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Pagination */}
+      <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
+        <Button
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          variant="outline"
+        >
+          Prev
+        </Button>
+
+        {[...Array(totalPages)].map((_, i) => (
+          <Button
+            key={i}
+            variant={currentPage === i + 1 ? "default" : "outline"}
+            onClick={() => goToPage(i + 1)}
+          >
+            {i + 1}
+          </Button>
+        ))}
+
+        <Button
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          variant="outline"
+        >
+          Next
+        </Button>
+      </div>
+    </div>
   );
 };
 

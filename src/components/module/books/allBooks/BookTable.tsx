@@ -1,4 +1,3 @@
-import { TableCell, TableRow } from "@/components/ui/table";
 import type { IBook } from "@/type";
 import BorrowBookModal from "../../borrow/borrowBooks/BorrowBookModal";
 import BookDeleteModal from "../bookDelete/BookDeleteModal";
@@ -11,32 +10,30 @@ interface IProps {
 
 const BookTable = ({ book }: IProps) => {
   return (
-    <TableRow>
-      <TableCell>{book.title}</TableCell>
-      <TableCell>{book.author}</TableCell>
-      <TableCell>{book.genre}</TableCell>
-      <TableCell>{book.isbn}</TableCell>
-      <TableCell>{book.copies}</TableCell>
-      <TableCell>
+    <tr className="hover:bg-gray-800 transition border-b border-gray-700">
+      <td className="p-3">{book.title}</td>
+      <td className="p-3">{book.author}</td>
+      <td className="p-3 uppercase">{book.genre}</td>
+      <td className="p-3">{book.isbn}</td>
+      <td className="p-3">{book.copies}</td>
+      <td className="p-3">
         <span
-          className={`px-2 py-1 rounded text-xs font-medium ${
-            book.available
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
+          className={`px-2 py-1 text-sm rounded-md ${
+            book.copies > 0
+              ? "bg-green-200 text-green-900"
+              : "bg-red-200 text-red-900"
           }`}
         >
-          {book.available ? "Available" : "Unavailable"}
+          {book.copies > 0 ? "Available" : "Unavailable"}
         </span>
-      </TableCell>
-      <TableCell>
-        <div className="flex justify-center items-center gap-2">
-          <ViewBookModal bookId={book._id} />
-          <BookUpdateModal book={book} />
-          <BookDeleteModal bookId={book._id} />
-          <BorrowBookModal book={book} />
-        </div>
-      </TableCell>
-    </TableRow>
+      </td>
+      <td className="p-3 flex flex-wrap gap-2">
+        <ViewBookModal bookId={book._id} />
+        <BookUpdateModal book={book} />
+        <BookDeleteModal bookId={book._id} />
+        <BorrowBookModal book={book} />
+      </td>
+    </tr>
   );
 };
 

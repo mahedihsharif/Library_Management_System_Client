@@ -1,4 +1,3 @@
-import { TableCell, TableRow } from "@/components/ui/table";
 import type { IBookSummary } from "@/type";
 
 interface IProps {
@@ -11,11 +10,11 @@ const BorrowBookTable = ({ borrowBook }: IProps) => {
     book: { title, isbn },
   } = borrowBook;
   return (
-    <TableRow>
-      <TableCell>{title}</TableCell>
-      <TableCell>{isbn}</TableCell>
-      <TableCell>{totalQuantity}</TableCell>
-    </TableRow>
+    <tr className="hover:bg-gray-800 transition border-b border-gray-700">
+      <td className="p-3">{title}</td>
+      <td className="p-3">{isbn}</td>
+      <td className="p-3">{totalQuantity}</td>
+    </tr>
   );
 };
 

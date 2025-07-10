@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 
 import { Textarea } from "@/components/ui/textarea";
-import { useUpdateBookMutation } from "@/redux/api/baseApi";
+import { getErrorMessage, useUpdateBookMutation } from "@/redux/api/baseApi";
 import type { IBook } from "@/type";
 import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -58,19 +58,35 @@ const BookUpdateModal = ({ book }: IProps) => {
   }, [open, book, form]);
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    const res = await updateBook({
-      id: book._id,
-      updatedBookData: data,
-    }).unwrap();
-    if (res.success) {
-      toast.success(res.message, {
-        duration: 5000,
-      });
-      setOpen(false);
-      form.reset();
-      navigate("/", { replace: true });
-    } else {
-      toast.error(res.message, { duration: 5000 });
+    try {
+      const res = await updateBook({
+        id: book._id,
+        updatedBookData: data,
+      }).unwrap();
+      if (res.success) {
+        toast.success(res.message, {
+          duration: 5000,
+        });
+        setOpen(false);
+        form.reset();
+        navigate("/", { replace: true });
+      } else {
+        toast.error(res.message, { duration: 5000 });
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage) {
+        const lastPartOfError = errorMessage.split(",").pop()?.trim();
+        const cleanedMessage = lastPartOfError?.includes(":")
+          ? lastPartOfError.split(":").slice(1).join(":").trim()
+          : lastPartOfError;
+
+        toast.error(cleanedMessage || "Something went wrong", {
+          duration: 5000,
+        });
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
   return (
@@ -88,11 +104,13 @@ const BookUpdateModal = ({ book }: IProps) => {
         <DialogHeader>
           <DialogTitle>Update Book</DialogTitle>
         </DialogHeader>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-5"
           >
+            {/* TITLE */}
             <FormField
               control={form.control}
               name="title"
@@ -105,6 +123,8 @@ const BookUpdateModal = ({ book }: IProps) => {
                 </FormItem>
               )}
             />
+
+            {/* DESCRIPTION */}
             <FormField
               control={form.control}
               name="description"
@@ -117,6 +137,8 @@ const BookUpdateModal = ({ book }: IProps) => {
                 </FormItem>
               )}
             />
+
+            {/* AUTHOR */}
             <FormField
               control={form.control}
               name="author"
@@ -130,6 +152,7 @@ const BookUpdateModal = ({ book }: IProps) => {
               )}
             />
 
+            {/* GENRE */}
             <FormField
               control={form.control}
               name="genre"
@@ -157,6 +180,8 @@ const BookUpdateModal = ({ book }: IProps) => {
                 </FormItem>
               )}
             />
+
+            {/* ISBN */}
             <FormField
               control={form.control}
               name="isbn"
@@ -169,6 +194,8 @@ const BookUpdateModal = ({ book }: IProps) => {
                 </FormItem>
               )}
             />
+
+            {/* COPIES */}
             <FormField
               control={form.control}
               name="copies"
@@ -176,11 +203,27 @@ const BookUpdateModal = ({ book }: IProps) => {
                 <FormItem>
                   <FormLabel>Copies</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value || 0} />
+                    <Input type="number" {...field} value={field.value || 0} />
                   </FormControl>
                 </FormItem>
               )}
             />
+
+            {(() => {
+              const currentCopies = form.watch("copies");
+              const isAvailable = parseInt(currentCopies) > 0;
+
+              return (
+                <p
+                  className={`text-sm font-medium ${
+                    isAvailable ? "text-green-500" : "text-red-500"
+                  }`}
+                >
+                  Status: {isAvailable ? "Available" : "Unavailable"}
+                </p>
+              );
+            })()}
+
             <DialogFooter className="mt-3">
               <Button className="cursor-pointer">Updated</Button>
             </DialogFooter>

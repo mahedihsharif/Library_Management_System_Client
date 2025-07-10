@@ -7,12 +7,15 @@ import {
   type ICreateBorrowArg,
   type IError,
 } from "@/type";
+import { type SerializedError } from "@reduxjs/toolkit";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://library-management-system-six-dusky.vercel.app/api",
+    baseUrl: "http://localhost:5000/api",
+    // baseUrl: "https://library-management-system-six-dusky.vercel.app/api",
   }),
   tagTypes: ["book"],
   endpoints: (builder) => ({
@@ -22,6 +25,7 @@ export const baseApi = createApi({
     }),
     getBook: builder.query<ApiResponse<IBook>, string>({
       query: (id) => `/books/${id}`,
+      providesTags: (_result, _error, id) => [{ type: "book", id }],
     }),
     createBook: builder.mutation<ApiResponse<IBook>, IBookCreate, IError>({
       query: (bookData) => ({
@@ -40,7 +44,10 @@ export const baseApi = createApi({
         method: "PUT",
         body: updatedBookData,
       }),
-      invalidatesTags: ["book"],
+      invalidatesTags: (_result, _error, arg) => [
+        { type: "book", id: arg.id },
+        "book",
+      ],
     }),
     deleteBook: builder.mutation<ApiResponse<null>, string>({
       query: (id) => ({
@@ -75,3 +82,33 @@ export const {
   useCreateBorrowBookMutation,
   useGetBorrowBooksQuery,
 } = baseApi;
+
+//error handling for creating or updating data with type guard
+export function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null && "data" in error) {
+    const typedError = error as FetchBaseQueryError & IError;
+
+    if (
+      typedError.data &&
+      typeof typedError.data === "object" &&
+      typeof typedError.data.message === "string"
+    ) {
+      return typedError.data.message;
+    }
+  }
+
+  return "Something went wrong";
+}
+
+//error handling for read data with type guard
+export const getErrorMessageToReadData = (
+  error: FetchBaseQueryError | SerializedError
+): string => {
+  if ("status" in error) {
+    const data = error.data as { message?: string };
+    return data?.message || `Request failed with status ${error.status}`;
+  } else if ("message" in error) {
+    return error.message || "An unknown error occurred";
+  }
+  return "Something went wrong";
+};

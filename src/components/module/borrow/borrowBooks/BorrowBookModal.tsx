@@ -24,7 +24,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useCreateBorrowBookMutation } from "@/redux/api/baseApi";
+import {
+  getErrorMessage,
+  useCreateBorrowBookMutation,
+} from "@/redux/api/baseApi";
 import type { IBook, IBorrow } from "@/type";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -45,33 +48,67 @@ const BorrowBookModal = ({ book }: IProps) => {
 
   //handle a borrow book
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    //check copies is greater than quantity
-    if (book.copies >= data.quantity) {
-      const res = await createBorrowBook({
-        bookId: book._id,
-        borrowBookData: data as IBorrow,
-      }).unwrap();
-      if (res.success) {
-        toast.success(res.message, {
+    try {
+      //check copies is greater than quantity
+      if (
+        book.copies >= data.quantity &&
+        data.quantity > 0 &&
+        data.dueDate !== undefined
+      ) {
+        const res = await createBorrowBook({
+          bookId: book._id,
+          borrowBookData: data as IBorrow,
+        }).unwrap();
+        if (res.success) {
+          toast.success(res.message, {
+            duration: 5000,
+          });
+          setOpen(false);
+          form.reset();
+          navigate("/borrow-summary", { replace: true });
+        } else {
+          toast.error(res.message, { duration: 5000 });
+        }
+      } else {
+        if (data.quantity === undefined) {
+          toast.error("quantity is 0, please select quantity 1 or more", {
+            duration: 5000,
+          });
+        } else if (data.quantity <= 0) {
+          toast.error("quantity never be 0, please select quantity 1 or more", {
+            duration: 5000,
+          });
+        } else if (data.dueDate === undefined) {
+          toast.error("due date is empty, please select a due date!", {
+            duration: 5000,
+          });
+        } else {
+          toast.error(
+            `available copies: ${book.copies} but got quantity: ${data.quantity} please select ${book.copies} or less: ${book.copies}`,
+            { duration: 5000 }
+          );
+        }
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage) {
+        const lastPartOfError = errorMessage.split(",").pop()?.trim();
+        const cleanedMessage = lastPartOfError?.includes(":")
+          ? lastPartOfError.split(":").slice(1).join(":").trim()
+          : lastPartOfError;
+
+        toast.error(cleanedMessage || "Something went wrong", {
           duration: 5000,
         });
-        setOpen(false);
-        form.reset();
-        navigate("/borrow-summary", { replace: true });
       } else {
-        toast.error(res.message, { duration: 5000 });
+        toast.error("Something went wrong");
       }
-    } else {
-      toast.error(
-        `available copies: ${book.copies} but got quantity: ${data.quantity} please select less: ${book.copies}`,
-        { duration: 5000 }
-      );
     }
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <div className="cursor-pointer">
-        {book.available ? (
+        {book.copies > 0 ? (
           <DialogTrigger asChild>
             <Button variant="default" className="bg-cyan-500 cursor-pointer">
               Borrow Book

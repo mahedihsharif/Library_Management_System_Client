@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateBookMutation } from "@/redux/api/baseApi";
+import { getErrorMessage, useCreateBookMutation } from "@/redux/api/baseApi";
 import { type IBookCreate } from "@/type";
 import { useState } from "react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
@@ -39,16 +39,32 @@ const AddBookModal = () => {
   const form = useForm();
   const [createBook] = useCreateBookMutation(undefined);
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    const res = await createBook(data as IBookCreate).unwrap();
-    if (res.success) {
-      toast.success(res.message, {
-        duration: 5000,
-      });
-      setOpen(false);
-      form.reset();
-      navigate("/", { replace: true });
-    } else {
-      toast.error(res.message, { duration: 5000 });
+    try {
+      const res = await createBook(data as IBookCreate).unwrap();
+      if (res.success) {
+        toast.success(res.message, {
+          duration: 5000,
+        });
+        setOpen(false);
+        form.reset();
+        navigate("/", { replace: true });
+      } else {
+        toast.error(res.message, { duration: 5000 });
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage) {
+        const lastPartOfError = errorMessage.split(",").pop()?.trim();
+        const cleanedMessage = lastPartOfError?.includes(":")
+          ? lastPartOfError.split(":").slice(1).join(":").trim()
+          : lastPartOfError;
+
+        toast.error(cleanedMessage || "Something went wrong", {
+          duration: 5000,
+        });
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
   return (
@@ -171,6 +187,7 @@ const AddBookModal = () => {
                   <FormLabel>Copies</FormLabel>
                   <FormControl>
                     <Input
+                      type="number"
                       {...field}
                       value={field.value || ""}
                       placeholder="type a number"
